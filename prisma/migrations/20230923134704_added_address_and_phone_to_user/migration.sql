@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `address` VARCHAR(191) NOT NULL DEFAULT '',
+    ADD COLUMN `phone` VARCHAR(191) NOT NULL DEFAULT '';

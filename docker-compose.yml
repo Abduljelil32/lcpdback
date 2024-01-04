@@ -1,0 +1,25 @@
+# version: '3.8'
+
+# services:
+#   mysql:
+#     image: mysql:8.0
+#     container_name: blissa-container-2
+#     environment:
+#       MYSQL_ROOT_PASSWORD: 12345
+#       MYSQL_DATABASE: blissa
+#       MYSQL_USER: godwin
+#       MYSQL_PASSWORD: 12345
+#     ports:
+#       - "3306:3306"
+
+version: '3.3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: lcpd-lms-db-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    ports:
+      - "3306:3306"

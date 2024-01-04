@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  email           String            @unique() @db.VarChar(255)
+  name            String            @db.VarChar(255)
+  password        String            @db.VarChar(255)
+  phone           String            @default("")
+  address         String            @default("")
+  role            user_role         @default(student)
+  lecturerCourses Course[] // courses created by lecturer
+  studentCourses  StudentEnrolled[] //courses student is currently enrolled for
+  deleted         Boolean           @default(false)
+  studentAnswers  StudentAnswers[] //students answer to courses
+
+  @@map("users")
+}
+
+enum user_role {
+  admin    @map("admin")
+  lecturer @map("lecturer")
+  student  @map("student")
+}
+
+model Course {
+  id               Int               @id @default(autoincrement())
+  name             String            @db.VarChar(255)
+  amount           Float             @default(0)
+  image            String            @default("")
+  image_id         String            @default("")
+  description      String            @default("")
+  lecturer         User              @relation(fields: [lecturerId], references: [id])
+  lecturerId       Int // lecturer id
+  outlines         CourseOutline[]
+  studentsEnrolled StudentEnrolled[]
+}
+
+model CourseOutline {
+  id         Int     @id @default(autoincrement())
+  name       String  @db.VarChar(255)
+  note       String? @default("")
+  note_id    String  @default("")
+  video      String  @default("")
+  video_id   String  @default("")
+  videoLink  String  @default("") //third party url like youtube
+  customNote String? @default("") //rich text note
+  courseId   Int
+  course     Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  quizes     Quiz[]
+  deleted    Boolean @default(false)
+}
+
+// //model for courses a studet has already paid for 
+model StudentEnrolled {
+  id            Int      @id @default(autoincrement())
+  studentId     Int //student id
+  student       User     @relation(fields: [studentId], references: [id])
+  courseId      Int
+  course        Course   @relation(fields: [courseId], references: [id])
+  transactionId String   @default("")
+  trxref        String   @default("")
+  date          DateTime @default(now())
+
+  //exam request
+  requestExam         Boolean @default(false)
+  examRequestAccepted Boolean @default(false)
+
+  examDate DateTime?
+  examKey  String    @default("")
+
+  tookExam  Boolean @default(false)
+  examScore String  @default("")
+
+  //cert request
+  requestCert         Boolean @default(false)
+  certRequestAccepted Boolean @default(false)
+}
+
+model Quiz {
+  id              Int              @id @default(autoincrement())
+  courseOutlineId Int?
+  courseOutline   CourseOutline?   @relation(fields: [courseOutlineId], references: [id])
+  question        String           @default("")
+  deleted         Boolean          @default(false)
+  answer          String           @default("")
+  option_a        String           @default("")
+  option_b        String           @default("")
+  option_c        String           @default("")
+  option_d        String           @default("")
+  studentAnswers  StudentAnswers[]
+}
+
+model StudentAnswers {
+  id         Int    @id @default(autoincrement())
+  studentId  Int //student id
+  student    User   @relation(fields: [studentId], references: [id])
+  quiz       Quiz?  @relation(fields: [quizId], references: [id])
+  quizId     Int?
+  quizCopyId Int?
+  answer     String @default("")
+}
